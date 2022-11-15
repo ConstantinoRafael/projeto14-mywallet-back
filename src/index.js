@@ -54,6 +54,20 @@ app.post("/sign-up", async (req, res) => {
   }
 });
 
+app.get("/sign-up", async (req, res) => {
+  try {
+    const signeds = await signUpCollection.find().toArray();
+    if (!signeds) {
+      return res.sendStatus(404);
+    }
+
+    res.send(signeds);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
 app.listen(process.env.PORT, () =>
   console.log(`Server running in port: ${process.env.PORT}`)
 );
