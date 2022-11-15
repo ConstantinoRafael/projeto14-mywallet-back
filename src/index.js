@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import joi from "joi";
+import { v4 as uuid } from "uuid";
 
 const app = express();
 dotenv.config();
@@ -12,6 +13,11 @@ const signUpSchema = joi.object({
   email: joi.string().required(),
   password: joi.string().required(),
   confirmPassword: joi.ref("password"),
+});
+
+const loginSchema = joi.object({
+  name: joi.string().required(),
+  password: joi.string().required(),
 });
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
@@ -25,6 +31,7 @@ try {
 
 const db = mongoClient.db("mywallet");
 const signUpCollection = db.collection("sign-up");
+const sessionsCollection = db.collection("sessions");
 
 app.post("/sign-up", async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -65,6 +72,26 @@ app.get("/sign-up", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await signUpCollection.findOne({ email });
+
+  if(user && (password === user.password)) {
+    const token = uuid();
+    const name = user.name
+
+    await sessionsCollection.insertOne({
+      userId: user._id,
+      token
+    })
+
+    res.send({ name, token })
+  } else {
+    res.status(404).send("Nome ou senha incorretos");
   }
 });
 
