@@ -1,0 +1,29 @@
+{
+  "name": "projeto14-mywallet-back",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConstantinoRafael/projeto14-mywallet-back.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ConstantinoRafael/projeto14-mywallet-back/issues"
+  },
+  "homepage": "https://github.com/ConstantinoRafael/projeto14-mywallet-back#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^4.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
