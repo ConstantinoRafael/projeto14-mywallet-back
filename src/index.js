@@ -16,11 +16,6 @@ const userSchema = joi.object({
   confirmPassword: joi.ref("password"),
 });
 
-const loginSchema = joi.object({
-  name: joi.string().required(),
-  password: joi.string().required(),
-});
-
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 
 try {
@@ -52,7 +47,11 @@ app.post("/sign-up", async (req, res) => {
 
     const hashPassword = bcrypt.hashSync(user.password, 10);
 
-    await userCollection.insertOne({...user, password: hashPassword});
+    await userCollection.insertOne({
+      ...user,
+      password: hashPassword,
+      confirmPassword: hashPassword,
+    });
 
     res.sendStatus(201);
   } catch (err) {
@@ -75,24 +74,43 @@ app.post("/sign-up", async (req, res) => {
 //   }
 // });
 
-app.post("/login", async (req, res) => {
+app.post("/sign-in", async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await signUpCollection.findOne({ email });
+  const token = uuid();
 
-  if (user && password === user.password) {
-    const token = uuid();
-    const name = user.name;
+  try {
+    const userExists = await userCollection.findOne({ email });
 
-    await sessionsCollection.insertOne({
-      userId: user._id,
-      token,
+    if (!userExists) {
+      return res.sendStatus(401);
+    }
+
+    const passwordOk = bcrypt.compareSync(password, userExists.password);
+
+    if (!passwordOk) {
+      return res.sendStatus(401);
+    }
+
+    const userSession = await sessionsCollection.findOne({
+      userId: userExists._id,
     });
 
-    res.send({ name, token });
-  } else {
-    res.status(404).send("Nome ou senha incorretos");
+    if (userSession) {
+      return res
+        .status(401)
+        .send({ message: "Você já está logado, saia para logar novamente" });
+    }
+
+    await sessionsCollection.insertOne({ token, userId: userExists._id });
+
+    res.send({ token })
+
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
   }
+
 });
 
 app.listen(process.env.PORT, () =>
