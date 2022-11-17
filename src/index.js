@@ -4,6 +4,7 @@ import { MongoClient } from "mongodb";
 import joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
+import dayjs from "dayjs";
 
 const app = express();
 dotenv.config();
@@ -28,6 +29,7 @@ try {
 const db = mongoClient.db("mywallet");
 const userCollection = db.collection("users");
 const sessionsCollection = db.collection("sessions");
+const recordCollection = db.collection("record");
 
 app.post("/sign-up", async (req, res) => {
   const user = req.body;
@@ -104,13 +106,49 @@ app.post("/sign-in", async (req, res) => {
 
     await sessionsCollection.insertOne({ token, userId: userExists._id });
 
-    res.send({ token })
-
+    res.send({ token });
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
   }
+});
 
+//app.get("/record", (req, res) => {});
+
+app.post("/in", async (req, res) => {
+  const { amount, reason } = req.body;
+  const { authorization } = req.headers;
+
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const session = await sessionsCollection.findOne({ token });
+
+    const user = await userCollection.findOne({ _id: session?.userId });
+
+    if (!user) {
+      return res.sendStatus(401);
+    }
+
+    delete user.password;
+
+    await recordCollection.insertOne({
+      date: dayjs().format("DD/MM"),
+      amount,
+      reason,
+      type: "in",
+      user,
+    });
+
+    res.sendStatus(201);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
 app.listen(process.env.PORT, () =>
