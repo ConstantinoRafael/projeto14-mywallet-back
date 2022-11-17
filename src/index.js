@@ -135,8 +135,10 @@ app.post("/in", async (req, res) => {
     }
 
     delete user.password;
+    delete user.confirmPassword;
 
-    await recordCollection.insertOne({
+
+    const dado = await recordCollection.insertOne({
       date: dayjs().format("DD/MM"),
       amount,
       reason,
@@ -144,6 +146,46 @@ app.post("/in", async (req, res) => {
       user,
     });
 
+    console.log(dado)
+    res.sendStatus(201);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.post("/out", async (req, res) => {
+  const { amount, reason } = req.body;
+  const { authorization } = req.headers;
+
+  const token = authorization?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  try {
+    const session = await sessionsCollection.findOne({ token });
+
+    const user = await userCollection.findOne({ _id: session?.userId });
+
+    if (!user) {
+      return res.sendStatus(401);
+    }
+
+    delete user.password;
+    delete user.confirmPassword;
+
+
+    const dado = await recordCollection.insertOne({
+      date: dayjs().format("DD/MM"),
+      amount,
+      reason,
+      type: "out",
+      user,
+    });
+
+    console.log(dado)
     res.sendStatus(201);
   } catch (err) {
     console.log(err);
