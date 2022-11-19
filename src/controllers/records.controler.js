@@ -1,4 +1,5 @@
-import { userCollection, sessionsCollection, recordsCollection } from "../index.js";
+import { userCollection, sessionsCollection, recordsCollection } from "../database/db.js";
+
 import dayjs from "dayjs";
 
 export async function getRecords(req, res) {
