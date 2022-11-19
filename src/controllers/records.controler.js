@@ -22,8 +22,6 @@ export async function getRecords(req, res) {
     delete user.password;
     delete user.confirmPassword;
 
-    console.log(user.email);
-
     const records = await recordsCollection.find().toArray();
 
     const recordsUser = records.filter((r) => r.user.email === user.email);
