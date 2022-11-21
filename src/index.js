@@ -21,6 +21,8 @@ export const userSchema = joi.object({
   confirmPassword: joi.ref("password"),
 });
 
-app.listen(process.env.PORT, () =>
-  console.log(`Server running in port: ${process.env.PORT}`)
+const port = process.env.PORT || 500
+
+app.listen(port =>
+  console.log(`Server running in port: ${port}`)
 );
