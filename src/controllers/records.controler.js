@@ -30,7 +30,7 @@ export async function getRecords(req, res) {
       return res.sendStatus(404);
     }
 
-    res.send(recordsUser);
+    res.send({user, recordsUser});
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
@@ -38,7 +38,7 @@ export async function getRecords(req, res) {
 }
 
 export async function postIn(req, res) {
-  const { amount, reason } = req.body;
+  const { amount, description } = req.body;
   const { authorization } = req.headers;
 
   const token = authorization?.replace("Bearer ", "");
@@ -62,7 +62,7 @@ export async function postIn(req, res) {
     await recordsCollection.insertOne({
       date: dayjs().format("DD/MM"),
       amount,
-      reason,
+      description,
       type: "in",
       user,
     });
@@ -75,7 +75,7 @@ export async function postIn(req, res) {
 }
 
 export async function postOut(req, res) {
-  const { amount, reason } = req.body;
+  const { amount, description } = req.body;
   const { authorization } = req.headers;
 
   const token = authorization?.replace("Bearer ", "");
@@ -99,7 +99,7 @@ export async function postOut(req, res) {
     await recordsCollection.insertOne({
       date: dayjs().format("DD/MM"),
       amount,
-      reason,
+      description,
       type: "out",
       user,
     });

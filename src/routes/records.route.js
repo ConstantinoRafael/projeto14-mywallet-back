@@ -1,4 +1,8 @@
-import { getRecords, postIn, postOut } from "../controllers/records.controler.js";
+import {
+  getRecords,
+  postIn,
+  postOut,
+} from "../controllers/records.controler.js";
 import { Router } from "express";
 
 const router = Router();

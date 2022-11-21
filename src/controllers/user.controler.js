@@ -7,11 +7,6 @@ export async function postSignUp(req, res) {
   const user = req.body;
 
   try {
-    const userExists = await userCollection.findOne({ email: user.email });
-    if (userExists) {
-      return res.status(409).send({ message: "Esse email já existe!" });
-    }
-
     const { error } = userSchema.validate(user, { abortEarly: false });
 
     if (error) {
