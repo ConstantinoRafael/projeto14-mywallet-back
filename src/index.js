@@ -6,7 +6,6 @@ import cors from "cors";
 import userRouters from "./routes/user.route.js";
 import recordsRouters from "./routes/records.route.js";
 
-
 const app = express();
 dotenv.config();
 app.use(express.json());
@@ -21,8 +20,4 @@ export const userSchema = joi.object({
   confirmPassword: joi.ref("password"),
 });
 
-const port = process.env.PORT || 500
-
-app.listen(port =>
-  console.log(`Server running in port: ${port}`)
-);
+app.listen(5000, () => console.log(`Server running in port: 5000`));
